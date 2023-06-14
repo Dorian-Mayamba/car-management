@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { RoleModule } from './role/role.module';
 import { Role } from './role/models/role.models.role';
 import { CarModule } from './car/car.module';
+import {Car} from './car/models/car.models';
 
 dotenv.config();
 
@@ -21,7 +22,7 @@ dotenv.config();
     username:process.env.DB_USERNAME,
     password:process.env.DB_PASSWORD,
     database:process.env.DB_DATABASE,
-    models:[User,Role]
+    models:[User,Role,Car]
   }), AuthModule, RoleModule, CarModule],
   controllers: [AppController],
   providers: [AppService],
