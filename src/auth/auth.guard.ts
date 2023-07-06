@@ -6,28 +6,26 @@ import { jwtConstants } from './constants';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(@Inject(JwtService) private jwtService:JwtService){}
+  constructor(@Inject(JwtService) private jwtService: JwtService) { }
   async canActivate(
     context: ExecutionContext
-  ): Promise<boolean>{
+  ): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const token = this.extractTokenFromRequest(request);
     if(!token){
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("not authenticated");
+    }else{
+      try{
+        const payload = await this.jwtService.verifyAsync(token);
+        request['user'] = payload;
+        return true;
+      }catch(err){
+        throw new UnauthorizedException();
+      }
     }
-    try{
-      const payload = await this.jwtService.verify(token,{
-        secret:jwtConstants.secret
-      });
-      request['user'] = payload;
-    }catch{
-      throw new UnauthorizedException();
-    }
-    return true;
   }
 
-  private extractTokenFromHeader(request:Request):string|undefined{
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token:undefined;
+  private extractTokenFromRequest(request:Request):string|undefined{
+    return request?.cookies['token'];
   }
 }
